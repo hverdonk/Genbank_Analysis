@@ -9,11 +9,50 @@ __copyright__ = "Copyright 2020, Hannah Verdonk"
 __license__ = "MIT"
 __email__ = "verdonkhannah@gmail.com"
 
+import sys
+from Bio import SeqIO
 import sqlite3
 conn = sqlite3.connect('example.db')
 c = conn.cursor()
 
+# Grab all genbank files listed in STDIN
+gb_files = sys.argv[1:]
+
+
+for f in gb_files:
+    for seq_record in SeqIO.parse(f, "genbank"):
+        pass
+        # TODO: find out what fields genbank files have & dump them into the new database
+
+'''
+Example code for parsing a genbank file (taken from http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc12)
+'''
+
+for seq_record in SeqIO.parse("ls_orchid.gbk", "genbank"):
+    print(seq_record.id)
+    print(repr(seq_record.seq))
+    print(len(seq_record))
+
+
+'''
+This should give:
+
+Z78533.1
+Seq('CGTAACAAGGTTTCCGTAGGTGAACCTGCGGAAGGATCATTGATGAGACCGTGG...CGC', IUPACAmbiguousDNA())
+740
+...
+Z78439.1
+Seq('CATTGTTGAGATCACATAATAATTGATCGAGTTAATCTGGAGGATCTGTTTACT...GCC', IUPACAmbiguousDNA())
+592
+
+
+'''
+
+
+
+
 '''Example Code, taken from https://docs.python.org/3/library/sqlite3.html'''
+
 
 # Create table
 c.execute('''CREATE TABLE stocks
