@@ -18,6 +18,11 @@ c = conn.cursor()
 # Grab all genbank files listed in STDIN
 gb_files = sys.argv[1:]
 
+# TODO: if/else statement to handle zipped vs unzipped files, try/catch loops for errors?
+
+# TODO: figure out the correct syntax for doing this, replacing the outer for loop below
+# with open genbank.gz as unzipped:
+    # parse the unzipped boi
 
 for f in gb_files:
     for seq_record in SeqIO.parse(f, "genbank"):
