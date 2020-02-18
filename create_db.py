@@ -35,14 +35,19 @@ c.execute('''CREATE TABLE genbank
              organism text,
              taxonomy text,
              seq text);
-             ''')
 
+             CREATE TABLE references
+             (ID text,
+             feature_start integer,
+             feature_end integer,
+             authors text,
+             journal text,
+             comment text);
 
-# TODO: add these tables
-#              CREATE TABLE references
-#              ();
-#              CREATE TABLE features
-#              ()
+             CREATE TABLE features
+             (ID text,
+             );
+              ''')
 
 
 # Grab all genbank files listed in STDIN
@@ -64,6 +69,27 @@ for f in gb_files:
                   seq_record.annotations['taxonomy'][-1],
                   str(seq_record.seq)), ]
         c.executemany('INSERT INTO genbank VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', entry)
+        for ref in seq_record.annotations['references']:
+            if len(ref.location) > 1:
+                for loc in ref.location:
+                    entry2 = [(seq_record.id,
+                               loc.start,
+                               loc.end,
+                               ref.authors,
+                               ref.journal,
+                               ref.comment), ]
+                    c.executemany('INSERT INTO references VALUES (?,?,?,?,?,?)', entry2)
+            else:
+                entry2 = [(seq_record.id,
+                           ref.location[0].start,
+                           ref.location[0].end,
+                           ref.authors,
+                           ref.journal,
+                           ref.comment), ]
+                c.executemany('INSERT INTO references VALUES (?,?,?,?,?,?)', entry2)
+        # for feature in seq_record.features:
+        #     entry3 = [(seq_record.id,
+        #                ), ]
 
 
 # Save (commit) the changes
@@ -109,42 +135,3 @@ References are stored as reference objects. Sequences are stored as sequence obj
 '''
 Example code for parsing a genbank file (taken from http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc12)
 '''
-
-"""
-for seq_record in SeqIO.parse("ls_orchid.gbk", "genbank"):
-    print(seq_record.id)
-    print(repr(seq_record.seq))
-    print(len(seq_record))
-
-
-'''
-This should give:
-
-Z78533.1
-Seq('CGTAACAAGGTTTCCGTAGGTGAACCTGCGGAAGGATCATTGATGAGACCGTGG...CGC', IUPACAmbiguousDNA())
-740
-...
-Z78439.1
-Seq('CATTGTTGAGATCACATAATAATTGATCGAGTTAATCTGGAGGATCTGTTTACT...GCC', IUPACAmbiguousDNA())
-592
-
-
-'''
-
-
-
-
-'''Example Code, taken from https://docs.python.org/3/library/sqlite3.html'''
-
-
-# Create table
-c.execute('''CREATE TABLE stocks
-             (date text, trans text, symbol text, qty real, price real)''')
-
-# Insert a row of data
-c.execute("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)")
-
-
-
-
-"""
