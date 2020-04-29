@@ -1,0 +1,20 @@
+The list of things I'd like this database builder to accomplish, and whether or not the code can currently
+accomplish them.
+
+[x] Create the main genbank table
+[ ] Create the references table
+        - almost done!
+        - properly handle compound locations
+        - double check article title was inserted correctly
+        - double check what comments are (same as article title?)
+        - what is hf?
+[ ] Create the taxonomy table
+        - not started
+        - link genus/species in genbank entry to genus/species in taxonomy table. Each thing in taxonomy list links
+          to previous thing, so you can trace it up a list (e.g., cerevisiae will point to Saccharomyces)
+        - might be easier to do by building off of NCBI's taxonomy database?
+          https://www.ncbi.nlm.nih.gov/taxonomy/
+[ ] Build the features table
+        - columns chosen, need to be implemented
+        - Include basics (feature type, location, select things from feature.qualifiers (TODO: pick which qualifiers to include))
+[ ] Run it on all of genbank!

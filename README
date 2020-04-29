@@ -1,0 +1,34 @@
+The main genbank database table (TABLE genbank) is structured with the following columns. All contain the "text" data type.
+Many descriptions below were adapted from https://www.ncbi.nlm.nih.gov/genbank/samplerecord/ on 28 Apr 2020.
+
+ID - the genbank ID number, formatted as accession_number.version_number
+accession - The unique identifier for a sequence record. An accession number applies to the complete record and is
+            usually a combination of a letter(s) and numbers
+name - the unique name for the genbank record, may be the same as its accession number
+description - Brief description of sequence; includes information such as source organism, gene name/protein name, or
+              some description of the sequence's function (if the sequence is non-coding).
+molecule_type - the type of molecule that was sequenced
+topology - The physical shape of the molecule. E.g., linear or circular DNA.
+genbank_division - The GenBank division to which a record belongs. Indicated with a three letter abbreviation.
+                   More information on the different divisions can be found at
+                   https://www.ncbi.nlm.nih.gov/genbank/samplerecord/#GenBankDivisionB
+date - the date the genbank record was last modified
+source - The organism or molecule type that this sequence came from. Free-format, possibly abbreviated
+organism - The formal scientific name for the source organism (genus and species, where appropriate).
+taxonomy - The most specific phylogenetic classification for the genbank record object. Used in conjunction with the
+           taxonomy table to reconstruct phylogenies (see "TABLE taxonomy" description)
+seq - The nucleic or amino acid sequence
+
+
+
+TABLE references provides all the references associated with each genbank ID. Columns are as follows:
+
+ID - The genbank ID number, formatted as accession_number.version_number. Field contains text.
+feature_start - The initial position (in bp) that the reference refers to. Field contains an integer.
+feature_end - The final position (in bp) that the reference refers to. Field contains an integer.
+authors - List of authors in the order in which they appear in the cited article. Field contains text.
+journal - MEDLINE abbreviation of the journal name. Field contains text.
+comment - TODO: what IS comment? Possibly the section under all the references, but not all genbank files have it.
+
+Of note, entries with "Direct Submission" instead of an article title. Contact information of the submitter, such as
+institute/department and postal address, is included. Some older records do not contain a submitter block.

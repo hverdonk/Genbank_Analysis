@@ -42,6 +42,7 @@ c = conn.cursor()
 #              feature_start integer,
 #              feature_end integer,
 #              authors text,
+#              title text,
 #              journal text,
 #              comment text);
 #
@@ -57,31 +58,33 @@ c = conn.cursor()
 gb_files = sys.argv[1:]
 
 for f in gb_files:
-    # f = gzip.open(f)
+    # f = gzip.open(f)  # UNCOMMENT FOR REAL RUN
     for seq_record in SeqIO.parse(f, "genbank"):
-        print(type(seq_record.annotations['references'][0].location[0]))
-    #     entry = [(seq_record.id,
-    #               seq_record.annotations['accessions'][0],
-    #               seq_record.name,
-    #               seq_record.description,
-    #               seq_record.annotations['molecule_type'],
-    #               seq_record.annotations['topology'],
-    #               seq_record.annotations['data_file_division'],
-    #               seq_record.annotations['date'],
-    #               seq_record.annotations['source'],
-    #               seq_record.annotations['organism'],
-    #               seq_record.annotations['taxonomy'][-1],
-    #               str(seq_record.seq)), ]
-    #     c.executemany('INSERT INTO genbank VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', entry)
+        #     print(type(seq_record.annotations['references'][0].location[0]))
+        #     entry = [(seq_record.id,
+        #               seq_record.annotations['accessions'][0],
+        #               seq_record.name,
+        #               seq_record.description,
+        #               seq_record.annotations['molecule_type'],
+        #               seq_record.annotations['topology'],
+        #               seq_record.annotations['data_file_division'],
+        #               seq_record.annotations['date'],
+        #               seq_record.annotations['source'],
+        #               seq_record.annotations['organism'],
+        #               seq_record.annotations['taxonomy'][-1],
+        #               str(seq_record.seq)), ]
+        #     c.executemany('INSERT INTO genbank VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', entry)
 
         # for ref in seq_record.annotations['references']:
+        #     # was hf supposed to be the helper function import alias?
         #     if hf.is_compound_location(ref.location):
-                  # TODO: change up this if statement to properly decompose the compound location.
+        #           # TODO: change up this if statement to properly decompose the compound location.
         #         for loc in ref.location:
         #             entry2 = [(seq_record.id,
         #                        loc.start,
         #                        loc.end,
         #                        ref.authors,
+        #                        ref.title,
         #                        ref.journal,
         #                        ref.comment), ]
         #             c.executemany('INSERT INTO references VALUES (?,?,?,?,?,?)', entry2)
@@ -90,15 +93,18 @@ for f in gb_files:
         #                    ref.location[0].start,
         #                    ref.location[0].end,
         #                    ref.authors,
+        #                    ref.title,
         #                    ref.journal,
         #                    ref.comment), ]
         #         c.executemany('INSERT INTO references VALUES (?,?,?,?,?,?)', entry2)
 
+        lst = []
         for feature in seq_record.features:
-            print(feature)
-            entry3 = [(seq_record.id,
-                       ), ]
-
+            pass
+        #     lst.append(feature)
+        # print(lst)
+        #    entry3 = [(seq_record.id,
+        #               ), ]
 
 # Save (commit) the changes
 conn.commit()
@@ -106,12 +112,12 @@ conn.commit()
 # Close connection after committing changes
 conn.close()
 
-"""Create taxonomy table, link genus in genbank entry to genus in taxonomy table
-Each thing in taxonomy list links to previous thing, so you can trace it up a list.
+"""
 
 Create a references table linking each reference to its genbank ID
 
 Create a features table linking each genbank id to its features (get features using seq_record.features)
+
 
 Contents of one genbank entry:
 
