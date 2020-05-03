@@ -15,43 +15,44 @@ import sys
 from Bio import SeqIO
 import gzip
 import sqlite3
-import helper_functions
+import helper_functions as hf
 
 conn = sqlite3.connect('genbank.db')
 c = conn.cursor()
 
 # A genbank ID is accession_number.version_number. Can there be multiple IDs with the same accession number?
-# I'm ignoring the database cross-references because I'm not interested in exploring them at the moment.
+# If so, that'll throw off my stats by inflating the number of "unique" records in the system
+
 # Create table
-# c.execute('''CREATE TABLE genbank
-#              (ID text,
-#              accession text,
-#              name text,
-#              description text,
-#              molecule_type text,
-#              topology text,
-#              genbank_division text,
-#              date text,
-#              source text,
-#              organism text,
-#              taxonomy text,
-#              seq text);
-#
-#              CREATE TABLE references
-#              (ID text,
-#              feature_start integer,
-#              feature_end integer,
-#              authors text,
-#              title text,
-#              journal text,
-#              comment text);
-#
-#              CREATE TABLE features
+c.execute('''CREATE TABLE IF NOT EXISTS genbank
+             (ID text,
+             accession text,
+             name text,
+             description text,
+             molecule_type text,
+             topology text,
+             genbank_division text,
+             date text,
+             source text,
+             organism text,
+             taxonomy text,
+             seq text);
+             ''')
+
+c.execute('''CREATE TABLE IF NOT EXISTS refs
+            (ID text, feature_start integer,
+            feature_end integer,
+            authors text,
+            title text,
+            journal text,
+            comment text);
+             ''')
+
+# c.execute('''CREATE TABLE IF NOT EXISTS features
 #              (ID text,
 #              );
-#               ''')
-
-# TODO: add features table, taxonomy table
+#               '''
+#           )
 
 
 # Grab all genbank files listed in STDIN
@@ -60,51 +61,56 @@ gb_files = sys.argv[1:]
 for f in gb_files:
     # f = gzip.open(f)  # UNCOMMENT FOR REAL RUN
     for seq_record in SeqIO.parse(f, "genbank"):
-        #     print(type(seq_record.annotations['references'][0].location[0]))
-        #     entry = [(seq_record.id,
-        #               seq_record.annotations['accessions'][0],
-        #               seq_record.name,
-        #               seq_record.description,
-        #               seq_record.annotations['molecule_type'],
-        #               seq_record.annotations['topology'],
-        #               seq_record.annotations['data_file_division'],
-        #               seq_record.annotations['date'],
-        #               seq_record.annotations['source'],
-        #               seq_record.annotations['organism'],
-        #               seq_record.annotations['taxonomy'][-1],
-        #               str(seq_record.seq)), ]
-        #     c.executemany('INSERT INTO genbank VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', entry)
+        # print(type(seq_record.annotations['references'][0].location[0]))
+        # why did I want to check this?
+        entry = [(seq_record.id,
+                  seq_record.annotations['accessions'][0],
+                  seq_record.name,
+                  seq_record.description,
+                  seq_record.annotations['molecule_type'],
+                  seq_record.annotations['topology'],
+                  seq_record.annotations['data_file_division'],
+                  seq_record.annotations['date'],
+                  seq_record.annotations['source'],
+                  seq_record.annotations['organism'],
+                  seq_record.annotations['taxonomy'][-1],
+                  str(seq_record.seq)), ]
+        c.executemany('INSERT INTO genbank VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', entry)
 
-        # for ref in seq_record.annotations['references']:
-        #     # was hf supposed to be the helper function import alias?
-        #     if hf.is_compound_location(ref.location):
-        #           # TODO: change up this if statement to properly decompose the compound location.
-        #         for loc in ref.location:
-        #             entry2 = [(seq_record.id,
-        #                        loc.start,
-        #                        loc.end,
-        #                        ref.authors,
-        #                        ref.title,
-        #                        ref.journal,
-        #                        ref.comment), ]
-        #             c.executemany('INSERT INTO references VALUES (?,?,?,?,?,?)', entry2)
-        #     else:
-        #         entry2 = [(seq_record.id,
-        #                    ref.location[0].start,
-        #                    ref.location[0].end,
-        #                    ref.authors,
-        #                    ref.title,
-        #                    ref.journal,
-        #                    ref.comment), ]
-        #         c.executemany('INSERT INTO references VALUES (?,?,?,?,?,?)', entry2)
+        for r in seq_record.annotations['references']:
+            if hf.is_compound_location(r.location):
+                locations = hf.decompose_compound_location(r.location)
+                for loc in locations:
+                    entry2 = [(seq_record.id,
+                               int(loc.start),
+                               int(loc.end),
+                               r.authors,
+                               r.title,
+                               r.journal,
+                               r.comment), ]
+                    c.executemany('INSERT INTO refs VALUES (?,?,?,?,?,?,?)', entry2)
+            else:
+                entry2 = [(seq_record.id,
+                           int(r.location[0].start),
+                           int(r.location[0].end),
+                           r.authors,
+                           r.title,
+                           r.journal,
+                           r.comment), ]
+                c.executemany('INSERT INTO refs VALUES (?,?,?,?,?,?,?)', entry2)
 
         lst = []
         for feature in seq_record.features:
+            # TODO: add the fields to the table itself
             pass
         #     lst.append(feature)
         # print(lst)
         #    entry3 = [(seq_record.id,
         #               ), ]
+
+# Check that refs table has data in it
+c.execute('SELECT * from refs')
+print(c.fetchone())
 
 # Save (commit) the changes
 conn.commit()

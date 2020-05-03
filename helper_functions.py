@@ -20,10 +20,10 @@ def is_compound_location(loc):
         return True
 
 
-def simplify_location(loc):
+def decompose_compound_location(loc):
     """Takes in a compound location. Returns the list of individual
     'Bio.SeqFeature.FeatureLocation' objects that comprised it.
     :param loc:
-    :return: bool
+    :return: list
     """
-
+    return loc.parts

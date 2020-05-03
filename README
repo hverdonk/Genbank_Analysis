@@ -1,5 +1,7 @@
-The main genbank database table (TABLE genbank) is structured with the following columns. All contain the "text" data type.
+The main genbank database table (TABLE "genbank") is structured with the following columns. All contain the "text" data type.
 Many descriptions below were adapted from https://www.ncbi.nlm.nih.gov/genbank/samplerecord/ on 28 Apr 2020.
+Database cross-references were deliberately ignored because I'm not interested in exploring them at the moment, but
+they'll be easy enough to add back in later if I'm interested.
 
 ID - the genbank ID number, formatted as accession_number.version_number
 accession - The unique identifier for a sequence record. An accession number applies to the complete record and is
@@ -15,20 +17,35 @@ genbank_division - The GenBank division to which a record belongs. Indicated wit
 date - the date the genbank record was last modified
 source - The organism or molecule type that this sequence came from. Free-format, possibly abbreviated
 organism - The formal scientific name for the source organism (genus and species, where appropriate).
-taxonomy - The most specific phylogenetic classification for the genbank record object. Used in conjunction with the
-           taxonomy table to reconstruct phylogenies (see "TABLE taxonomy" description)
+taxonomy - The most specific phylogenetic classification for the genbank record object. Will be used in conjunction
+           with the taxonomy table to reconstruct phylogenies (see "TABLE taxonomy" description).
 seq - The nucleic or amino acid sequence
 
+------------------------------------------------------------------------------------------------------------------------
 
-
-TABLE references provides all the references associated with each genbank ID. Columns are as follows:
+TABLE "references" provides all the references associated with each genbank ID. Columns are as follows:
 
 ID - The genbank ID number, formatted as accession_number.version_number. Field contains text.
 feature_start - The initial position (in bp) that the reference refers to. Field contains an integer.
 feature_end - The final position (in bp) that the reference refers to. Field contains an integer.
 authors - List of authors in the order in which they appear in the cited article. Field contains text.
 journal - MEDLINE abbreviation of the journal name. Field contains text.
-comment - TODO: what IS comment? Possibly the section under all the references, but not all genbank files have it.
+comment - Further comments regarding a sequence/submission. Not present in all genbank entries.
 
-Of note, entries with "Direct Submission" instead of an article title. Contact information of the submitter, such as
-institute/department and postal address, is included. Some older records do not contain a submitter block.
+Of note, entries with "Direct Submission" instead of an article title include contact information of the submitter,
+such as institute/department and postal address. Some older records do not contain a submitter block.
+
+------------------------------------------------------------------------------------------------------------------------
+
+TABLE "taxonomy" provides the means for recreating the taxonomic tree associated with each genbank ID. May or may not
+actually implement this one. Or I'll just make a simple version.
+
+Columns will be as follows:
+
+self - The current taxa
+parent - The supergroup for the current taxa
+
+By repeatedly querying the taxonomy table to find the parent of each parent, one can create the entire taxonomic
+hierarchy for a single given organism. Work remains to be done to refine this design and implement it, likely by
+reducing the amount of work needed to recreate the tree by storing common paths (near the root, like saving the few
+life/realm/kingdom paths as one thing, since it'll be the same for most organisms)

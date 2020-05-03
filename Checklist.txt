@@ -2,12 +2,12 @@ The list of things I'd like this database builder to accomplish, and whether or 
 accomplish them.
 
 [x] Create the main genbank table
-[ ] Create the references table
-        - almost done!
-        - properly handle compound locations
-        - double check article title was inserted correctly
-        - double check what comments are (same as article title?)
-        - what is hf?
+        - (DONE) table should have all genbank fields described in the README
+        - (DONE) handle case where a given genbank field is blank (field is left blank in table without any fuss)
+[x] Create the references table
+        - (DONE) properly handle compound locations
+        - (DONE) double check article title was inserted correctly
+        - (DONE) handle case where a given genbank field is blank (field is left blank in table without any fuss)
 [ ] Create the taxonomy table
         - not started
         - link genus/species in genbank entry to genus/species in taxonomy table. Each thing in taxonomy list links
